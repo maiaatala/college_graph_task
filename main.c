@@ -44,15 +44,18 @@ void escreverGrafo(FILE *arquivo, int numVertices, int numArestas, int vertices[
         int origem = arestas[i].origem;
         int destino = arestas[i].destino;
         
-        if (!visited[origem - 1]) {
-            fprintf(arquivo, "(%d,%d) ", origem, destino);
-            visited[origem - 1] = 1;
-        } else if (!visited[destino - 1]) {
-            fprintf(arquivo, "(%d,%d) ", origem, destino);
-            visited[destino - 1] = 1;
+        fprintf(arquivo, "(%d,%d) ", origem, destino);
+        visited[origem - 1] = 1;
+        visited[destino - 1] = 1;
+    }
+    
+    // Check if there are any unvisited vertices
+    for (int i = 0; i < numVertices; i++) {
+        if (!visited[i]) {
+            fprintf(arquivo, "(%d) ", vertices[i]);
         }
     }
-
+    
     fprintf(arquivo, "\n");
     free(visited);
 }
