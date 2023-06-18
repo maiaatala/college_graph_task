@@ -23,6 +23,7 @@ void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, 
     for (int i = 0; i < *numArestas; i++) {
         int origem, destino, peso;
         fscanf(arquivo, "%d %d %d", &origem, &destino, &peso);
+        // printf("%d %d %d\n", origem, destino, peso);
         arestas[i].origem = origem;
         arestas[i].destino = destino;
         arestas[i].peso = peso;
@@ -51,7 +52,7 @@ void escreverGrafo(FILE *arquivo, int numVertices, int numArestas, int vertices[
             visited[destino - 1] = 1;
         }
     }
-    
+
     fprintf(arquivo, "\n");
     free(visited);
 }
@@ -121,6 +122,124 @@ int verificarCiclicidade(int numVertices, Aresta arestas[], int numArestas) {
     return 0; // Grafo é acíclico
 }
 
+int encontrarVerticeMinimo(int *distancias, int *visitados, int numVertices) {
+    int minDistancia = INT_MAX;
+    int verticeMinimo = -1;
+
+    for (int i = 0; i < numVertices; i++) {
+        if (visitados[i] == 0 && distancias[i] <= minDistancia) {
+            minDistancia = distancias[i];
+            verticeMinimo = i;
+        }
+    }
+
+    return verticeMinimo;
+}
+
+int encontrarMenorVertice(int numVertices, int *vertices) {
+    int menor = INT_MAX;
+    for (int i = 0; i < numVertices; i++) {
+        if (vertices[i] < menor) {
+            menor = vertices[i];
+        }
+    }
+    return menor;
+}
+
+int encontrarMaiorVertice(int numVertices, int *vertices) {
+    int maior = INT_MIN;
+    for (int i = 0; i < numVertices; i++) {
+        if (vertices[i] > maior) {
+            maior = vertices[i];
+        }
+    }
+    return maior;
+}
+
+void imprimirCaminhoMinimo(FILE *saida, int numVertices, Aresta *arestas, int numArestas, int origem, int destino) {
+    // Vetor de distâncias e vetor de predecessores
+    int *distancias = (int *)malloc(numVertices * sizeof(int));
+    int *predecessores = (int *)malloc(numVertices * sizeof(int));
+
+    // Inicializar as distâncias e predecessores
+    for (int i = 0; i < numVertices; i++) {
+        distancias[i] = INT_MAX;
+        predecessores[i] = -1;
+    }
+
+    // A distância para a origem é 0
+    distancias[origem - 1] = 0;
+
+    // Vetor para armazenar os vértices visitados
+    int *visitados = (int *)malloc(numVertices * sizeof(int));
+
+    // Loop principal do algoritmo de Dijkstra
+    for (int i = 0; i < numVertices - 1; i++) {
+        // Encontrar o vértice não visitado com a menor distância
+        int u = -1;
+        int minDistancia = INT_MAX;
+        for (int j = 0; j < numVertices; j++) {
+            if (!visitados[j] && distancias[j] < minDistancia) {
+                u = j;
+                minDistancia = distancias[j];
+            }
+        }
+
+        if (u == -1) {
+            break;  // Não há mais vértices alcançáveis
+        }
+
+        // Marcar o vértice como visitado
+        visitados[u] = 1;
+
+        // Atualizar as distâncias dos vértices adjacentes a u
+        for (int j = 0; j < numArestas; j++) {
+            if (arestas[j].origem == u + 1) {
+                int v = arestas[j].destino - 1;
+                int peso = arestas[j].peso;
+
+                if (!visitados[v] && distancias[u] != INT_MAX && distancias[u] + peso < distancias[v]) {
+                    distancias[v] = distancias[u] + peso;
+                    predecessores[v] = u;
+                }
+            }
+        }
+    }
+
+    // Verificar se há um caminho mínimo até o destino
+    if (predecessores[destino - 1] == -1) {
+        fprintf(saida, "Caminho mínimo: Não existe caminho entre a origem e o destino.\n");
+    } else {
+        // Construir o caminho mínimo
+        int *caminho = (int *)malloc(numVertices * sizeof(int));
+        int index = 0;
+        int atual = destino - 1;
+
+        while (atual != -1) {
+            caminho[index] = atual + 1;
+            index++;
+            atual = predecessores[atual];
+        }
+
+        // Imprimir o caminho mínimo
+        fprintf(saida, "Caminho mínimo: ");
+        for (int i = index - 1; i >= 0; i--) {
+            fprintf(saida, "%d", caminho[i]);
+            if (i != 0) {
+                fprintf(saida, "-");
+            }
+        }
+        fprintf(saida, "\n");
+
+        free(caminho);
+    }
+
+    free(distancias);
+    free(predecessores);
+    free(visitados);
+}
+
+
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
@@ -160,7 +279,10 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(saida, "Acíclico\n");
     }
-    
+    int origem = encontrarMenorVertice(numVertices, vertices);
+    int destino = encontrarMaiorVertice(numVertices, vertices);
+    imprimirCaminhoMinimo(saida, numVertices, arestas, numArestas, origem, destino);
+
     fclose(saida);
 
     free(vertices);
