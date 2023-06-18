@@ -11,10 +11,11 @@ typedef struct {
     int peso;
 } Aresta;
 
-void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, Aresta arestas[]) {
+void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, Aresta **arestas) {
     fscanf(arquivo, "%d %d", numVertices, numArestas);
 
     *vertices = (int *)malloc((*numVertices) * sizeof(int));
+    *arestas = (Aresta *)malloc((*numArestas) * sizeof(Aresta));
 
     for (int i = 0; i < *numVertices; i++) {
         (*vertices)[i] = i + 1;
@@ -23,10 +24,9 @@ void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, 
     for (int i = 0; i < *numArestas; i++) {
         int origem, destino, peso;
         fscanf(arquivo, "%d %d %d", &origem, &destino, &peso);
-        // printf("%d %d %d\n", origem, destino, peso);
-        arestas[i].origem = origem;
-        arestas[i].destino = destino;
-        arestas[i].peso = peso;
+        (*arestas)[i].origem = origem;
+        (*arestas)[i].destino = destino;
+        (*arestas)[i].peso = peso;
     }
 }
 
@@ -258,9 +258,9 @@ int main(int argc, char *argv[]) {
 
     int numVertices = 0, numArestas = 0;
     int *vertices = NULL;
-    Aresta arestas[MAX_ARESTAS];
+    Aresta *arestas = NULL;
 
-    lerGrafo(entrada, &numVertices, &numArestas, &vertices, arestas);
+    lerGrafo(entrada, &numVertices, &numArestas, &vertices, &arestas);
     fclose(entrada);
 
     FILE *saida = fopen(argv[2], "w");
