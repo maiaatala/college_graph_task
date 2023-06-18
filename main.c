@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 
 #define MAX_ARESTAS 100
 
@@ -54,6 +56,72 @@ void escreverGrafo(FILE *arquivo, int numVertices, int numArestas, int vertices[
     free(visited);
 }
 
+int verificarRegularidade(int numVertices, Aresta arestas[], int numArestas) {
+    int grauPrimeiroVertice = 0;
+    int grauAtual;
+
+    // Contagem do grau do primeiro vértice
+    for (int i = 0; i < numArestas; i++) {
+        if (arestas[i].origem == 1) {
+            grauPrimeiroVertice++;
+        }
+    }
+
+    // Verificação do grau dos demais vértices
+    for (int i = 2; i <= numVertices; i++) {
+        grauAtual = 0;
+
+        for (int j = 0; j < numArestas; j++) {
+            if (arestas[j].origem == i || arestas[j].destino == i) {
+                grauAtual++;
+            }
+        }
+
+        if (grauAtual != grauPrimeiroVertice) {
+            return 0; // Grafo é irregular
+        }
+    }
+
+    return 1; // Grafo é regular
+}
+
+int verificarCicloRecursivo(int vertice, int visitados[], int pai, Aresta arestas[], int numArestas) {
+    visitados[vertice] = 1;
+
+    for (int i = 0; i < numArestas; i++) {
+        if (arestas[i].origem == vertice) {
+            int vizinho = arestas[i].destino;
+            if (!visitados[vizinho]) {
+                if (verificarCicloRecursivo(vizinho, visitados, vertice, arestas, numArestas)) {
+                    return 1; // Ciclo encontrado
+                }
+            } else if (vizinho != pai) {
+                return 1; // Ciclo encontrado
+            }
+        }
+    }
+
+    return 0; // Nenhum ciclo encontrado
+}
+
+int verificarCiclicidade(int numVertices, Aresta arestas[], int numArestas) {
+    int *visitados = (int *)malloc(numVertices * sizeof(int));
+    memset(visitados, 0, numVertices * sizeof(int));
+
+    for (int i = 0; i < numVertices; i++) {
+        if (!visitados[i]) {
+            if (verificarCicloRecursivo(i, visitados, -1, arestas, numArestas)) {
+                free(visitados);
+                return 1; // Grafo é cíclico
+            }
+        }
+    }
+
+    free(visitados);
+    return 0; // Grafo é acíclico
+}
+
+
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printf("Uso: %s <arquivo_entrada> <arquivo_saida>\n", argv[0]);
@@ -81,6 +149,18 @@ int main(int argc, char *argv[]) {
     }
 
     escreverGrafo(saida, numVertices, numArestas, vertices, arestas);
+    if (verificarRegularidade(numVertices, arestas, numArestas)) {
+        fprintf(saida, "Regular\n");
+    } else {
+        fprintf(saida, "Não Regular\n");
+    }
+
+    if (verificarCiclicidade(numVertices, arestas, numArestas)) {
+        fprintf(saida, "Cíclico\n");
+    } else {
+        fprintf(saida, "Acíclico\n");
+    }
+    
     fclose(saida);
 
     free(vertices);
