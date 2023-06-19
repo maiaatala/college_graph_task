@@ -126,28 +126,6 @@ int verificarCiclicidade(int numVertices, Aresta arestas[], int numArestas) {
     return 0; // Grafo é acíclico
 }
 
-/* DEPRECATED retorna qual o menor vertice */
-int encontrarMenorVertice(int numVertices, int *vertices) {
-    int menor = INT_MAX;
-    for (int i = 0; i < numVertices; i++) {
-        if (vertices[i] < menor) {
-            menor = vertices[i];
-        }
-    }
-    return menor;
-}
-
-/* DEPRECATED retorna qual o maior vertice */
-int encontrarMaiorVertice(int numVertices, int *vertices) {
-    int maior = INT_MIN;
-    for (int i = 0; i < numVertices; i++) {
-        if (vertices[i] > maior) {
-            maior = vertices[i];
-        }
-    }
-    return maior;
-}
-
 /* funcao auxiliar, usada em 'imprimirCaminhoMinimo' */
 void imprimirCaminhoMinimoRecursivo(FILE *saida, int *predecessores, int origem, int destino) {
     if (origem == destino) {
