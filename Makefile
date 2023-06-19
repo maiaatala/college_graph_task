@@ -4,11 +4,11 @@ CFLAGS = -Wall -Wextra -std=c99
 SOURCE = main.c
 OBJECT = main.o
 
-INPUT_FILE = arq_grafo.txt
-30_FILE = grafo_15_30.txt
-100_FILE = grafo_15_100.txt
-REGULAR_FILE = grafo_regular.txt
-NCICLICO_FILE = grafo_nciclico.txt
+INPUT_FILE = ./entry_files/arq_grafo.txt
+30_FILE = ./entry_files/grafo_15_30.txt
+100_FILE = ./entry_files/grafo_15_100.txt
+REGULAR_FILE = ./entry_files/grafo_regular.txt
+NCICLICO_FILE = ./entry_files/grafo_nciclico.txt
 OUTPUT_FILE = output.txt
 
 final: $(OBJECT)
