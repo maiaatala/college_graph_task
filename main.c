@@ -9,7 +9,6 @@ typedef struct {
     int peso;
 } Aresta;
 
-
 /* le o grafo de arquivo e salva no heap */
 void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, Aresta **arestas) {
     fscanf(arquivo, "%d %d", numVertices, numArestas);
@@ -30,7 +29,6 @@ void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, 
     }
 }
 
-
 /* escreve o grafo do heap para o arquivo de saida */
 void escreveGrafo(FILE *arquivo, int numVertices, int numArestas, int vertices[], Aresta arestas[]) {
     fprintf(arquivo, "Grafo\n");
@@ -41,26 +39,14 @@ void escreveGrafo(FILE *arquivo, int numVertices, int numArestas, int vertices[]
     }
     fprintf(arquivo, "\nE: ");
     
-    // int *visited = (int *)calloc(numVertices, sizeof(int));  // Array to track visited vertices
-    
     /* itera pela struct de aresta e imprime ela */
     for (int i = 0; i < numArestas; i++) {
         int origem = arestas[i].origem;
         int destino = arestas[i].destino;
         
         fprintf(arquivo, "(%d,%d) ", origem, destino);
-        // visited[origem - 1] = 1;
-        // visited[destino - 1] = 1;
     }
-    
-    // Check if there are any unvisited vertices
-    // for (int i = 0; i < numVertices; i++) {
-    //     if (!visited[i]) {
-    //         fprintf(arquivo, "(%d) ", vertices[i]);
-    //     }
-    // }
-    
-    // free(visited);
+
     fprintf(arquivo, "\n");
 }
 
