@@ -3,14 +3,14 @@
 #include <string.h>
 #include <limits.h>
 
-#define MAX_ARESTAS 100
-
 typedef struct {
     int origem;
     int destino;
     int peso;
 } Aresta;
 
+
+/* le o grafo de arquivo e salva no heap */
 void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, Aresta **arestas) {
     fscanf(arquivo, "%d %d", numVertices, numArestas);
 
@@ -30,23 +30,27 @@ void lerGrafo(FILE *arquivo, int *numVertices, int *numArestas, int **vertices, 
     }
 }
 
-void printGraph(FILE *arquivo, int numVertices, int numArestas, int vertices[], Aresta arestas[]) {
+
+/* escreve o grafo do heap para o arquivo de saida */
+void escreveGrafo(FILE *arquivo, int numVertices, int numArestas, int vertices[], Aresta arestas[]) {
     fprintf(arquivo, "Grafo\n");
     fprintf(arquivo, "V: ");
+
     for (int i = 0; i < numVertices; i++) {
         fprintf(arquivo, "%d ", vertices[i]);
     }
     fprintf(arquivo, "\nE: ");
     
-    int *visited = (int *)calloc(numVertices, sizeof(int));  // Array to track visited vertices
+    // int *visited = (int *)calloc(numVertices, sizeof(int));  // Array to track visited vertices
     
+    /* itera pela struct de aresta e imprime ela */
     for (int i = 0; i < numArestas; i++) {
         int origem = arestas[i].origem;
         int destino = arestas[i].destino;
         
         fprintf(arquivo, "(%d,%d) ", origem, destino);
-        visited[origem - 1] = 1;
-        visited[destino - 1] = 1;
+        // visited[origem - 1] = 1;
+        // visited[destino - 1] = 1;
     }
     
     // Check if there are any unvisited vertices
@@ -56,10 +60,11 @@ void printGraph(FILE *arquivo, int numVertices, int numArestas, int vertices[], 
     //     }
     // }
     
+    // free(visited);
     fprintf(arquivo, "\n");
-    free(visited);
 }
 
+/* verifica se o grafo é regular */
 int verificarRegularidade(int numVertices, Aresta arestas[], int numArestas) {
     int *graus = (int *)calloc(numVertices, sizeof(int));
 
@@ -72,9 +77,8 @@ int verificarRegularidade(int numVertices, Aresta arestas[], int numArestas) {
     }
 
     // Verificação se todos os vértices têm o mesmo grau
-    int grauPrimeiroVertice = graus[0];
     for (int i = 1; i < numVertices; i++) {
-        if (graus[i] != grauPrimeiroVertice) {
+        if (graus[i] != graus[0]) {
             free(graus);
             return 0; // Grafo é irregular
         }
@@ -84,7 +88,7 @@ int verificarRegularidade(int numVertices, Aresta arestas[], int numArestas) {
     return 1; // Grafo é regular
 }
 
-
+/* funcao auxiliar, usada em 'verifiarCiclicidade', retorna 1 quando um ciclo é encontrato */
 int verificarCicloRecursivo(int vertice, int visitados[], int pai, Aresta arestas[], int numArestas) {
     visitados[vertice] = 1;
 
@@ -104,6 +108,7 @@ int verificarCicloRecursivo(int vertice, int visitados[], int pai, Aresta aresta
     return 0; // Nenhum ciclo encontrado
 }
 
+/* retorna 1 se o grafo é ciclico */
 int verificarCiclicidade(int numVertices, Aresta arestas[], int numArestas) {
     int *visitados = (int *)malloc(numVertices * sizeof(int));
     memset(visitados, 0, numVertices * sizeof(int));
@@ -121,20 +126,7 @@ int verificarCiclicidade(int numVertices, Aresta arestas[], int numArestas) {
     return 0; // Grafo é acíclico
 }
 
-int encontrarVerticeMinimo(int *distancias, int *visitados, int numVertices) {
-    int minDistancia = INT_MAX;
-    int verticeMinimo = -1;
-
-    for (int i = 0; i < numVertices; i++) {
-        if (visitados[i] == 0 && distancias[i] <= minDistancia) {
-            minDistancia = distancias[i];
-            verticeMinimo = i;
-        }
-    }
-
-    return verticeMinimo;
-}
-
+/* DEPRECATED retorna qual o menor vertice */
 int encontrarMenorVertice(int numVertices, int *vertices) {
     int menor = INT_MAX;
     for (int i = 0; i < numVertices; i++) {
@@ -145,6 +137,7 @@ int encontrarMenorVertice(int numVertices, int *vertices) {
     return menor;
 }
 
+/* DEPRECATED retorna qual o maior vertice */
 int encontrarMaiorVertice(int numVertices, int *vertices) {
     int maior = INT_MIN;
     for (int i = 0; i < numVertices; i++) {
@@ -155,6 +148,7 @@ int encontrarMaiorVertice(int numVertices, int *vertices) {
     return maior;
 }
 
+/* funcao auxiliar, usada em 'imprimirCaminhoMinimo' */
 void imprimirCaminhoMinimoRecursivo(FILE *saida, int *predecessores, int origem, int destino) {
     if (origem == destino) {
         fprintf(saida, "%d", origem);
@@ -166,6 +160,7 @@ void imprimirCaminhoMinimoRecursivo(FILE *saida, int *predecessores, int origem,
     }
 }
 
+/* imprime o caminho minimo entre dois vertices */
 void imprimirCaminhoMinimo(FILE *saida, int numVertices, Aresta *arestas, int numArestas, int origem, int destino) {
     // Vetor de distâncias e vetor de predecessores
     int *distancias = (int *)malloc(numVertices * sizeof(int));
@@ -226,8 +221,6 @@ void imprimirCaminhoMinimo(FILE *saida, int numVertices, Aresta *arestas, int nu
     free(visitados);
 }
 
-
-
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printf("Uso: %s <arquivo_entrada> <arquivo_saida>\n", argv[0]);
@@ -254,7 +247,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    printGraph(saida, numVertices, numArestas, vertices, arestas);
+    escreveGrafo(saida, numVertices, numArestas, vertices, arestas);
 
     if (verificarRegularidade(numVertices, arestas, numArestas)) {
         fprintf(saida, "Regular\n");
@@ -267,9 +260,8 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(saida, "Acíclico\n");
     }
-    int origem = encontrarMenorVertice(numVertices, vertices);
-    int destino = encontrarMaiorVertice(numVertices, vertices);
-    imprimirCaminhoMinimo(saida, numVertices, arestas, numArestas, origem, destino);
+
+    imprimirCaminhoMinimo(saida, numVertices, arestas, numArestas, 1, numVertices);
 
     fclose(saida);
 
