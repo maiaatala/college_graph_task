@@ -228,8 +228,6 @@ int main(int argc, char *argv[]) {
     imprimirCaminhoMinimo(saida, numVertices, arestas, numArestas, 1, numVertices);
 
     fclose(saida);
-
     free(vertices);
-
     return 0;
 }

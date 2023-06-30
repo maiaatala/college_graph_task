@@ -9,6 +9,7 @@ INPUT_FILE = ./entry_files/arq_grafo.txt
 100_FILE = ./entry_files/grafo_15_100.txt
 REGULAR_FILE = ./entry_files/grafo_regular.txt
 NCICLICO_FILE = ./entry_files/grafo_nciclico.txt
+GRAFO_CONEXO = ./entry_files/grafo_conexo.txt
 OUTPUT_FILE = output.txt
 
 final: $(OBJECT)
@@ -33,6 +34,10 @@ REG: $(OBJECT)
 NCI: $(OBJECT)
 	$(CC) $(CFLAGS) $(OBJECT) -o programa
 	./programa $(NCICLICO_FILE) $(OUTPUT_FILE)
+
+CONEXO: $(OBJECT)
+	$(CC) $(CFLAGS) $(OBJECT) -o programa
+	./programa $(GRAFO_CONEXO) $(OUTPUT_FILE)
 	
 clean:
 	rm -f programa $(OBJECT) $(OUTPUT_FILE)
