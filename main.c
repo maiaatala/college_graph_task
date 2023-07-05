@@ -185,6 +185,61 @@ void imprimirCaminhoMinimo(FILE *saida, int numVertices, Aresta *arestas, int nu
     free(visitados);
 }
 
+void prim(FILE *saida, int numVertices, int numArestas, Aresta *arestas, int origem) {
+    // Aloca espaço para os arrays pai, chave e incluso.
+    int *pai = (int *)malloc(numVertices * sizeof(int));    // Array para armazenar os pais dos vértices na árvore geradora mínima.
+    int *chave = (int *)malloc(numVertices * sizeof(int));  // Array para armazenar as chaves dos vértices.
+    int *incluso = (int *)malloc(numVertices * sizeof(int));  // Array para marcar quais vértices estão inclusos na árvore.
+
+    // Prepara a árvore
+    for (int i = 0; i <= numVertices; i++) {
+        chave[i] = INT_MAX;  // Inicializa todas as chaves com um valor alto (infinito).
+        incluso[i] = 0;      // Define todos os vértices como não inclusos na árvore.
+    }
+
+    // Define a chave do vértice de origem como 0 e o pai como -1 (representando a raiz da árvore).
+    chave[origem] = 0;
+    pai[origem] = -1;
+
+    // Executa o algoritmo de Prim
+    for (int i = 0; i <= numVertices - 1; i++) {
+        int u, minChave = INT_MAX;
+
+        // Encontra o vértice de menor chave que ainda não foi incluso na árvore
+        for (int v = 0; v < numVertices; v++) {
+            if (incluso[v] == 0 && chave[v] < minChave) {
+                minChave = chave[v];
+                u = v;
+            }
+        }
+
+        // Marca o vértice como incluso na árvore
+        incluso[u] = 1;
+
+        // Atualiza as chaves e pais dos vértices adjacentes não inclusos na árvore
+        for (int j = 0; j <= numArestas; j++) {
+            int v = arestas[j].destino;
+
+            if (arestas[j].origem == u && incluso[v] == 0 && arestas[j].peso < chave[v]) {
+                pai[v] = u;                  // Define o pai do vértice adjacente na árvore.
+                chave[v] = arestas[j].peso;  // Atualiza a chave do vértice adjacente com o peso da aresta.
+            }
+        }
+    }
+
+    // Imprime a Árvore Geradora Mínima
+    fprintf(saida, "Árvore Geradora Mínima:\n");
+    for (int i = 1; i <= numVertices; i++) {
+        fprintf(saida, "(%d, %d) - Peso: %d\n", pai[i], i, chave[i]);
+    }
+
+    // Libera a memória alocada
+    free(pai);
+    free(chave);
+    free(incluso);
+}
+
+
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printf("Uso: %s <arquivo_entrada> <arquivo_saida>\n", argv[0]);
@@ -227,9 +282,9 @@ int main(int argc, char *argv[]) {
 
     imprimirCaminhoMinimo(saida, numVertices, arestas, numArestas, 1, numVertices);
 
+    prim(saida, numVertices, numArestas, arestas, 1);
+
     fclose(saida);
-
     free(vertices);
-
     return 0;
 }
